@@ -23,6 +23,7 @@ python3-matplotlib
 python3-tk
 python3-mpltoolkits.basemap
 python3-astropy
+python3-basemap (this is for APSYNTRU)
 
 (please, tell me if something else is missing in your system).
 
@@ -63,9 +64,11 @@ conda install scipy
 conda install matplotlib
 conda install tk
 #note: tk should actually be installed already as dependency of above packages
+conda install astropy
+#note: the last 3 ones are for APSYNTRU:
+conda install basemap
 conda install basemap-data
 conda install basemap-data-hires
-conda install astropy
 
 
 2.- Download latest release of APSYNSIM (the release labelled with "I-TRAIN").

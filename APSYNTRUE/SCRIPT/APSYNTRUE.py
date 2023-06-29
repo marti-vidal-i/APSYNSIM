@@ -1690,10 +1690,16 @@ class CLEANer(object):
     self.parent = parent
     self.me = Tk.Toplevel(parent.tks)
 
-    self.me.attributes('-zoomed',True)
-    m = list(self.me.maxsize())
-    m[1]-=100
-    self.me.geometry('{}x{}+0+0'.format(*m))
+## Needed for MacOS to work:
+    try:
+      root.state('zoomed')
+    except:
+      root.attributes('-zoomed',True)
+
+   # self.me.attributes('-zoomed',True)
+   # m = list(self.me.maxsize())
+   # m[1]-=100
+   # self.me.geometry('{}x{}+0+0'.format(*m))
 
 
     menubar = Tk.Menu(self.me)
@@ -2206,10 +2212,17 @@ class MEMer(object):
     self.parent = parent
     self.me = Tk.Toplevel(parent.tks)
 
-    self.me.attributes('-zoomed',True)
-    m = list(self.me.maxsize())
-    m[1]-=100
-    self.me.geometry('{}x{}+0+0'.format(*m))
+## Needed for MacOS to work:
+    try:
+      root.state('zoomed')
+    except:
+      root.attributes('-zoomed',True)
+
+
+#    self.me.attributes('-zoomed',True)
+#    m = list(self.me.maxsize())
+#    m[1]-=100
+#    self.me.geometry('{}x{}+0+0'.format(*m))
 
     menubar = Tk.Menu(self.me)
     menubar.add_command(label="Help", command=self._getHelp)
