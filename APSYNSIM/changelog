@@ -1,3 +1,10 @@
+v 2.5b - FEB 2024.
+- Corrected typos in the documentation.
+- Removed dependency on Basemap.
+- Added depencency on Cartopy.
+- Added instructions for Windows.
+- Corrected bug when saving images obtained from multi-IF data.
+
 v 2.3b - JUL 2023.
 - Updated for Python 3.8
 - Updated documentation.

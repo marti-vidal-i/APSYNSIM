@@ -1,6 +1,7 @@
 
 APSYNSIM, A REAL-TIME APERTURE SYNTHESIS SIMULATOR
-IVAN MARTI-VIDAL (2022) - University of Valencia
+APSYNTRU, A PEDAGOGICAL REAL-DATA INTERFEROMETRY ANALYSIS TOOL
+IVAN MARTI-VIDAL (2024) - University of Valencia
 
 
 A warm acknowledgement to J. Girard, for very useful feedback!
@@ -23,7 +24,7 @@ python3-matplotlib
 python3-tk
 python3-mpltoolkits.basemap
 python3-astropy
-python3-basemap (this is for APSYNTRU)
+python3-cartopy (this is for APSYNTRU)
 
 (please, tell me if something else is missing in your system).
 
@@ -31,12 +32,12 @@ If you have conda installed, just run (for instance):
 
 conda create -n apsyn python=3.8
 conda activate apsyn
-conda install matplotlib scipy astropy basemap
+conda install matplotlib scipy astropy cartopy
 
 
 2.- Just run the script "APSYNSIM.py" (located in the "SCRIPT" directory):
 
-python APSYNSIM.py
+python3 APSYNSIM.py
 
 
 3.- You can also run "APSYNTRUE" (i.e., the real data imager!), which is located in the "APSYNTRU/SCRIPT" directory.
@@ -65,13 +66,11 @@ conda install matplotlib
 conda install tk
 #note: tk should actually be installed already as dependency of above packages
 conda install astropy
-#note: the last 3 ones are for APSYNTRU:
-conda install basemap
-conda install basemap-data
-conda install basemap-data-hires
+#note: the last one is for APSYNTRU:
+conda install cartopy
 
 
-2.- Download latest release of APSYNSIM (the release labelled with "I-TRAIN").
+2.- Download latest release of APSYNSIM (the release labelled with "UV-PG-2024").
 
 3.- If needed (depends on the release you have downloaded), change:
 
@@ -93,7 +92,25 @@ conda install basemap-data-hires
 
 Unfortunately, I do not have any Virtual Machine with the newest M$ Windblows versions, which means that I cannot generate binary files as before. 
 
-But, fortunately, there are ways of running Python scripts in Windows (I'm afraid you will have to "google" for them).
+But, fortunately, there are ways of running Python scripts in Windows:
+
+-- Download and install Anaconda (following their recommendations):
+
+    https://docs.anaconda.com/free/anaconda/install/windows
+
+--Open the recently installed ``Anaconda Navigator'' (it may run an update the first time).
+    
+-- Unzip the APSYNSIM package from GitHub into a directory of your choice (e.g. ``Documents'')
+
+-- Right-click on ``APSYNSYM.py'' (or ``APSYNTRU.py'') and choose ``Open with...''. Then, select the Python binary that comes with Anaconda, which (if you installed Anaconda in its standard directory) should be in:
+    
+            /Users/YOURNAME/anaconda3/pythonw 
+
+
+If everything works as expected, the GUI should appear after a while (the first time you run it, it may take quite longer to come, since it has to install all the found dependencies). 
+
+If you have selected to always open the ``*.py'' files with the Python binary from Anaconda, then you will be able to open the two programs (APSYNSIM and APSYNTRU) with a simple double-click. Good luck!
+
 
 
 

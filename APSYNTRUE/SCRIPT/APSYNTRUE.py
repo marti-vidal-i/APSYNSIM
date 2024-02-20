@@ -41,7 +41,8 @@ from tkinter import scrolledtext as ScrolledText
 from astropy.io import fits as pf
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import time as dt 
-from mpl_toolkits.basemap import Basemap
+import cartopy.crs as ccrs
+from PIL import Image
 
 
 plt = mpl.pyplot
@@ -57,7 +58,7 @@ import time
 import sys
 
 
-__version__ = '2.3b'
+__version__ = '2.5b'
 
 
 
@@ -178,6 +179,23 @@ class dataTool(object):
     self.__version__ = __version__
 
 
+#############
+## World map:
+    GREENW = -512; MAXLAT = [-85.,85.]
+    MAP = 'WORLD_MAP_SM.png' ; FS = 32
+
+    World = np.copy(np.roll(np.asarray(Image.open(MAP))[::-1,:,0],GREENW,axis=1).astype(float))
+    World = np.max(World)-World
+    World /= -np.max(World)
+    NLAT,NLON = np.shape(World)
+    x = np.linspace(0.,360.,NLON)
+    y = np.linspace(MAXLAT[0],MAXLAT[1],NLAT)
+    xs, ys = np.meshgrid(x,y)
+    self.World = {'data':World,'xs':xs,'ys':ys,'Nroll':NLON}
+#############
+
+
+
     self.cmaps = ['gist_heat','jet','gray']
     self.cmap = 0
 
@@ -203,7 +221,7 @@ class dataTool(object):
     pl.set_cmap(self.cmaps[self.cmap])
     self.currcmap = cm.get_cmap() # cm.jet
 
-    self.curzoom = {'beamPlot':[],'dirtyPlot':[],'UVPlot':[],'dataPlot':[],'EarthPlot':[]}
+    self.curzoom = {'beamPlot':[],'dirtyPlot':[],'UVPlot':[],'dataPlot':[]}
     self.pressed = False
 
     self.flagmode = 0 # 0 -> zoom mode; 1 -> Flag; 2 -> Unflag
@@ -228,12 +246,6 @@ class dataTool(object):
 ## large in the image):
     MemoryHungry = False
 ##########################
-
-
-# Limits for the Earth plot (after zoom-out):
-    self.EarthXLim = (-2.e5,1.3e7)
-    self.EarthYLim = (-1.31e5,1.3e7)
-
 
 
 
@@ -301,9 +313,9 @@ class dataTool(object):
     Tk.Button(win, text='OK', command=win.destroy).pack()
 
 
-  def GUI(self): # ,makefigs=True):
+  def GUI(self):
 
-    fs = 18 # fontsize for titles
+    fs = 18
 
     mpl.rcParams['toolbar'] = 'None'
 
@@ -321,12 +333,27 @@ class dataTool(object):
     self.tks.config(menu=menubar)
     self.canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-    butFrame = Tk.Frame(self.tks)
-    butFrame.pack(side=Tk.TOP) #,expand=1)
-
     self.buttons = {}
+
+
+
+    butFrame = Tk.Frame(self.tks)
+    butFrame.pack(side=Tk.TOP)
+
     plFrame = Tk.Frame(butFrame)
     plFrame.pack(side=Tk.LEFT)
+
+    menFrame = Tk.Frame(butFrame)
+    menFrame.pack(side=Tk.LEFT)
+    self.buttons['loadData'] = Tk.Button(menFrame,text="Load Data",command=self._loadData)
+    self.buttons['loadData'].pack(side=Tk.TOP)
+    self.buttons['getHelp'] = Tk.Button(menFrame,text="Help",command=self._getHelp)
+    self.buttons['getHelp'].pack(side=Tk.TOP)
+    self.buttons['Quit'] = Tk.Button(menFrame,text="Quit",command=self.quit)
+    self.buttons['Quit'].pack(side=Tk.TOP)
+
+    separator = Tk.Frame(butFrame,height=2, bd=5, relief=Tk.SUNKEN)
+    separator.pack(fill=Tk.X, padx=5, pady=2,side=Tk.LEFT)
 
     AxFrame = Tk.LabelFrame(butFrame,text="Plot: ")
     AxFrame.pack(side=Tk.LEFT)
@@ -492,7 +519,6 @@ class dataTool(object):
 
 
 
-    self.EarthPlot = self.figUV.add_subplot(231,aspect='equal',facecolor=(0,0,0))
     self.UVPlot = self.figUV.add_subplot(232,aspect='equal',facecolor=(0,0,0))
     self.beamPlot = self.figUV.add_subplot(233,aspect='equal')
     self.dataFig = self.figUV.add_axes([0.07,0.07,0.55,0.38])
@@ -503,30 +529,12 @@ class dataTool(object):
 
     self.UVCov = [self.UVPlot.plot([],[],'.w',picker=True)[0], self.UVPlot.plot([],[],'.w',picker=True)[0]]
     self.UVCovHI = [self.UVPlot.plot([],[],'.r')[0], self.UVPlot.plot([],[],'.r')[0]]
-  #  self.UVCovUT = [self.UVPlot.plot([],[],'.b')[0]
 
     self.Box = self.dataFig.plot([0.,0.,0.,0.,0.],[0.,0.,0.,0.,0.],lw=2,color='b')[0]
     self.BoxFg = self.dataFig.plot([0.,0.,0.,0.,0.],[0.,0.,0.,0.,0.],lw=2,color='r')[0]
 
 
 ## PLOT EARTH:
-
-    self.EarthPlot.cla()
-    self.EarthMap = Basemap(projection='ortho',lat_0=45,lon_0=5,resolution='l', ax = self.EarthPlot,
-        llcrnrx=-5000000,llcrnry=-5000000,urcrnrx=5000000,urcrnry=5000000)
-
-    self.EarthMap.drawcoastlines(linewidth=0.25)
-    self.EarthMap.drawcountries(linewidth=0.25)
-    self.EarthMap.fillcontinents(color='moccasin',lake_color='aqua')
-# draw the edge of the map projection region (the projection limb)
-    self.EarthMap.drawmapboundary(fill_color='aqua')
-# draw lat/lon grid lines every 30 degrees.
-    self.EarthMap.drawmeridians(np.arange(0,360,30))
-    self.EarthMap.drawparallels(np.arange(-90,90,30))
-
-    self.EarthPlot.set_xlim(self.EarthXLim)
-    self.EarthPlot.set_ylim(self.EarthYLim)
-    self.curzoom['EarthPlot'] = list(self.EarthXLim)+list(self.EarthYLim)
 
 
     self.dirtyPlot = self.figUV.add_subplot(236,aspect='equal')
@@ -561,12 +569,7 @@ class dataTool(object):
     self.canvas.mpl_connect('motion_notify_event', self._onDrag)
 
 
-  #  self.fmtH = r'$\phi = $ %3.1f$^\circ$   $\delta = $ %3.1f$^\circ$' "\n" r'UT = %3.1fh / %3.1fh'
     self.fmtBas = r'Bas %s $-$ %s  at  UT = %4.2fh'
-  #  self.fmtVis = r'Amp: %.1e Jy.   Phase: %5.1f deg.' 
-  #  self.fmtA = 'N = %i'
-  #  self.fmtA2 = '  Picked Ant. %s' 
-  #  self.fmtA3 = '\n%6.1fm | %6.1fm'
     self.fmtD = r'% .2e Jy/beam' "\n" r'$\Delta\alpha = $ % 4.2f / $\Delta\delta = $ % 4.2f '
     self.fmtM = r'%.2e Jy/pixel' "\n"  r'$\Delta\alpha = $ % 4.2f / $\Delta\delta = $ % 4.2f'
 
@@ -574,7 +577,6 @@ class dataTool(object):
     self.dirtyImage = self.dirtyPlot.imshow(self.PSF,cmap=self.currcmap)
 
 
-#    self.beamPlot.set_title('PSF',rotation=-90.,position=(1.05,-0.5),transform=self.beamPlot.transAxes,fontsize=fs)
     self.beamPlot.set_title('PSF',rotation=-90.,x=1.05, y=0.5,fontsize=fs)
 
     self.dirtyPlot.set_title('DIRTY IMAGE',rotation=-90.,x=1.05, y=0.45,fontsize=fs)
@@ -660,6 +662,11 @@ class dataTool(object):
         self.showError('BAD UVFITS FILE!')
 
       if success:
+
+## Draw Earth seen from the correct Declination:
+        self.EarthPlot = self.figUV.add_subplot(231,aspect='equal',facecolor=(0,0,0),projection=ccrs.Orthographic(central_longitude=0, central_latitude=self.dec))
+        self.EarthMap = self.EarthPlot.pcolormesh(self.World['xs'],self.World['ys'],self.World['data'],transform=ccrs.PlateCarree(),cmap='seismic',vmin=-1.,vmax=1.0) #,animated=True)
+
         win = Tk.Toplevel(self.tks)
         win.attributes('-topmost', 'true')
         win.title("Current UVFITS File Info")
@@ -1019,8 +1026,6 @@ class dataTool(object):
       self.antLon *= -1.0
 ####################
 
-  #  print 'UV: ',i0,U0, V0, Uc, Vc
-  #  print 'Geom: ',B0,H0S,D0S, GST0, self.RA     
 
 
     self.Mask = np.zeros(self.Nvis,dtype=bool)
@@ -1087,6 +1092,9 @@ class dataTool(object):
     self.buttons['UT0'].config(from_=0,to=self.Ntimes-1)
     self.buttons['UT0'].set(0)
 
+    self.STATIONS = self.EarthPlot.plot(self.antLon,self.antLat,'or',transform=ccrs.PlateCarree())
+    self.STATION_NAMES = [self.EarthPlot.text(self.antLon[i],self.antLat[i],self.antnames[i],transform=ccrs.PlateCarree(),color='r') for i in range(len(self.antLon))]
+
     self._plotEarth(True)
     self._plotUV(True)
 
@@ -1119,33 +1127,31 @@ class dataTool(object):
 
   def _plotEarth(self,event):
 
-    self.EarthPlot.cla()
-    del self.EarthMap
+
 
     selLat = self.Dec
-    selLon = -(180.+self.GMST[self.buttons['UT0'].get()]-self.RA)%360.
+    selLon = (self.GMST[self.buttons['UT0'].get()]-self.RA)%360.
 
-    self.EarthMap = Basemap(projection='ortho',lat_0=selLat,
-        lon_0=selLon,resolution='c', ax = self.EarthPlot,area_thresh=20000,
-        llcrnrx=-5000000,llcrnry=-5000000,urcrnrx=5000000,urcrnry=5000000)
+## All this try/except rubish comes from the different versions of cartopy (geocollections).
+## I haven't found a good way to force the same version for different platforms.
+    try:
+      self.EarthMap.set_array(np.roll(self.World['data'],int(selLon*self.World['Nroll']/360),axis=1)[:,:])
+    except:
+      try:
+        self.EarthMap.set_array(np.roll(self.World['data'],int(selLon*self.World['Nroll']/360),axis=1)[:-1,:-1])
+      except:
+        try:
+          self.EarthMap.set_array(np.roll(self.World['data'],int(selLon*self.World['Nroll']/360),axis=1)[:,:].ravel())
+        except:
+          self.EarthMap.set_array(np.roll(self.World['data'],int(selLon*self.World['Nroll']/360),axis=1)[:-1,:-1].ravel())
 
-    self.EarthMap.drawcoastlines(linewidth=0.25)
-    self.EarthMap.fillcontinents(color='moccasin',lake_color='aqua')
-# draw the edge of the map projection region (the projection limb)
-    self.EarthMap.drawmapboundary(fill_color='aqua')
-# draw lat/lon grid lines every 30 degrees.
-    self.EarthMap.drawmeridians(np.arange(0,360,30))
-    self.EarthMap.drawparallels(np.arange(-90,90,30))
 
-    self.EarthPlot.set_xlim(self.EarthXLim)
-    self.EarthPlot.set_ylim(self.EarthYLim)
-
-    self.STATIONS = self.EarthMap.scatter(self.antLon,self.antLat,latlon=True,zorder=10,c='b',s=25)
+    self.STATIONS[0].set_data(self.antLon+selLon+180.,self.antLat)
     for st in range(self.Nants):
-      x,y = self.EarthMap(self.antLon[st]-0.0, self.antLat[st]+0.0)
-      self.EarthPlot.text(x,y,self.antnames[st],color='r')
+      print('TEXT FOR %s'%self.antnames[st])
+      self.STATION_NAMES[st].set_position((self.antLon[st]+selLon+180.,self.antLat[st]))
+      print('DONE')
 
-    self.curzoom['EarthPlot'] = list(self.EarthXLim) + list(self.EarthYLim)
     H = self.Utimes[self.buttons['UT0'].get()]
     M = (H-int(H))*60.
     S = (M - int(M))*60.
@@ -1352,7 +1358,7 @@ class dataTool(object):
 
 
   def _onDrag(self,event):
-    
+ 
     if self.pressed and event.inaxes == self.dataFig:
       self.moved = True
 ## PLOT RECTANGLE!
@@ -1364,8 +1370,6 @@ class dataTool(object):
       else:
         self.BoxFg.set_data([x0,x0,x1,x1,x0],[y0,y1,y1,y0,y0])
 
-      pl.draw()
-      self.canvas.draw()
     else:
       self.pressed = False
       self.moved = False
@@ -1373,8 +1377,10 @@ class dataTool(object):
       self.Box.set_data([0.,0.,0.,0.,0.],[0.,0.,0.,0.,0.])
       self.BoxFg.set_data([0.,0.,0.,0.,0.],[0.,0.,0.,0.,0.])
 
+    if event.inaxes == self.dataFig:
       pl.draw()
       self.canvas.draw()
+
     return
 
 
@@ -1578,8 +1584,6 @@ class dataTool(object):
       event.axname = 'dirtyPlot'
     elif event.inaxes == self.UVPlot:
       event.axname = 'UVPlot'
-    elif event.inaxes == self.EarthPlot:
-      event.axname = 'EarthPlot'
     elif event.inaxes == self.dataFig:
       event.axname = 'dataPlot'
       if event.key in ['f', 'F']:
@@ -1635,7 +1639,7 @@ class dataTool(object):
       head['CUNIT2'] = 'deg'
       head['CTYPE3'] = 'FREQ'
       head['CRVAL3'] = self.Nu0
-      head['CDELT3'] = self.BWTOT
+      head['CDELT3'] = np.average(self.BWTOT)
       head['CRPIX3'] = 1
       head['CUNIT3'] = 'Hz'
       head['CTYPE4'] = 'STOKES'
@@ -1696,12 +1700,6 @@ class CLEANer(object):
     except:
       root.attributes('-zoomed',True)
 
-   # self.me.attributes('-zoomed',True)
-   # m = list(self.me.maxsize())
-   # m[1]-=100
-   # self.me.geometry('{}x{}+0+0'.format(*m))
-
-
     menubar = Tk.Menu(self.me)
     menubar.add_command(label="Help", command=self._getHelp)
     menubar.add_command(label="Quit", command=self.quit)
@@ -1719,8 +1717,8 @@ class CLEANer(object):
     self.bmask = np.zeros(np.shape(self.parent.Dirty),dtype=bool)
     self.PSF = np.copy(self.residuals)
 
-    self.ResidPlot = self.figCL1.add_subplot(121,aspect='equal') #pl.axes([0.01,0.43,0.5,0.5],aspect='equal')
-    self.CLEANPlot = self.figCL1.add_subplot(122,aspect='equal',sharex=self.ResidPlot,sharey=self.ResidPlot) #pl.axes([0.55,0.43,0.5,0.5],aspect='equal')
+    self.ResidPlot = self.figCL1.add_subplot(121,aspect='equal')
+    self.CLEANPlot = self.figCL1.add_subplot(122,aspect='equal',sharex=self.ResidPlot,sharey=self.ResidPlot)
     self.ResidPlot.set_adjustable('box')
     self.CLEANPlot.set_adjustable('box')
 
@@ -1768,7 +1766,7 @@ class CLEANer(object):
 
 
     self.frames['CLOpt'].pack(side=Tk.LEFT)
-    self.canvas1.get_tk_widget().pack(side=Tk.LEFT) #, fill=Tk.BOTH, expand=1)
+    self.canvas1.get_tk_widget().pack(side=Tk.LEFT) 
 
     self.buttons = {}
 
@@ -1807,7 +1805,7 @@ class CLEANer(object):
 
     self.doMask = True
     self.maskMode = {True:'Add Mask',False:'Remove Mask'}
-    self.pressed = -1
+    self.pressedID = -1
     self.xy0 = [0,0]
     self.moved = False
     self.resadd = False
@@ -1942,7 +1940,7 @@ class CLEANer(object):
 
     self.canvas1._tkcanvas.focus_set()
     if event.inaxes == self.ResidPlot:
-      self.pressed = int(event.button)
+      self.pressedID = int(event.button)
       RA = event.xdata
       Dec = event.ydata
       self.xydata = [RA,Dec]
@@ -1981,13 +1979,13 @@ class CLEANer(object):
       self.Box.set_data([0.,0.,0.,0.,0.],[0.,0.,0.,0.,0.])
 
     self.moved = False
-    self.pressed = -1
+    self.pressedID = -1
     self.canvas1.draw()
 
 
 
   def _doMask(self,event):
-    if self.pressed>=0 and event.inaxes==self.ResidPlot:
+    if self.pressedID>=0 and event.inaxes==self.ResidPlot:
       self.moved = True
       RA = event.xdata
       Dec = event.ydata
@@ -2219,10 +2217,6 @@ class MEMer(object):
       root.attributes('-zoomed',True)
 
 
-#    self.me.attributes('-zoomed',True)
-#    m = list(self.me.maxsize())
-#    m[1]-=100
-#    self.me.geometry('{}x{}+0+0'.format(*m))
 
     menubar = Tk.Menu(self.me)
     menubar.add_command(label="Help", command=self._getHelp)

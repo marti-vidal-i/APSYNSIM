@@ -51,7 +51,7 @@ import os
 import time
 import sys
 
-__version__ = '2.3b'
+__version__ = '2.5b'
 
 
 
