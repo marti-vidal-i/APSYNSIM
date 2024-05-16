@@ -527,7 +527,7 @@ class Interferometer(object):
       head['OBSGEO-Y'] = 6.5e6*np.cos(self.lat)                                                 
       head['OBSGEO-Z'] = 6.5e6*np.sin(self.lat)                                 
       head['DATE']     = Now              
-      head['ORIGIN']  = 'OSO-APSYNSIM'       
+      head['ORIGIN']  = 'UVEG-APSYNSIM'       
 
 
     if not os.path.exists(self.userdir):
@@ -596,7 +596,6 @@ class Interferometer(object):
 
 
     showinfo('INFO','\n\nFITS images saved succesfully!\n\n')
-
 
 
 
@@ -2188,6 +2187,8 @@ class CLEANer(object):
 
     self.buttons['showfft'] = Tk.Button(self.frames['CLOpt'],text="Show FFT",command=self._showFFT)
     self.buttons['convsource'] = Tk.Button(self.frames['CLOpt'],text="True source (conv.)",command=self._convSource)
+    self.buttons['SAVE'] = Tk.Button(self.frames['CLOpt'],text="SAVE FITS!",command=self._SAVE)
+
 
 
     self.buttons['apply'] = Tk.Button(self.frames['GFr'],text="APPLY GAIN",command=self._ApplyGain)
@@ -2206,6 +2207,7 @@ class CLEANer(object):
     self.buttons['dorescale'].pack(side=Tk.TOP)
     self.buttons['showfft'].pack(side=Tk.TOP)
     self.buttons['convsource'].pack(side=Tk.TOP)
+    self.buttons['SAVE'].pack(side=Tk.TOP)
 
     separator = Tk.Frame(self.frames['CLOpt'],height=4, bd=5, relief=Tk.SUNKEN)
     separator.pack(fill=Tk.X, padx=10, pady=20,side=Tk.TOP)
@@ -2232,15 +2234,25 @@ class CLEANer(object):
     self._reCalib()
 
 
+
+  def _SAVE(self):
+    self.parent.saveFITS(None)
+    self.me.lift(self.parent.tks)
+
+
+
+
   def _ReNoise(self):
     try:
       sensit = float(self.entries['Sensit'].get())
     except:
       showinfo('ERROR!','Please, check the content of Sensit!\nIt should be a number!')
+      self.me.lift(self.parent.tks)
       return
 
     if sensit < 0.0: 
       showinfo('ERROR!','The sensitivity should be >= 0!')
+      self.me.lift(self.parent.tks)
       return
 
    # Get the number of baselines and the number of integration times:
@@ -2299,6 +2311,7 @@ class CLEANer(object):
       an1 = int(self.entries['Ant1'].curselection()[0])
     except:
       showinfo('WARNING!','No antenna selected!')
+      self.me.lift(self.parent.tks)
       return
 
     try:
@@ -2411,7 +2424,7 @@ class CLEANer(object):
 
     if not self.dorestore:
       showinfo('ERROR','Cannot add residual to the (unrestored) CLEAN model!\nRestore first!')
-
+      self.me.lift(self.parent.tks)
     if self.resadd:
       self.resadd = False
       toadd = self.cleanmod[self.Np4:self.parent.Npix-self.Np4,self.Np4:self.parent.Npix-self.Np4]
@@ -2510,6 +2523,7 @@ class CLEANer(object):
 
     if len(MainLobe[0]) < 5:
       showinfo('ERROR!', 'The main lobe of the PSF is too narrow!\n CLEAN model will not be restored')
+      self.me.lift(self.parent.tks)
       self.cleanBeam[:] = 0.0
       self.cleanBeam[self.parent.Npix/2,self.parent.Npix/2] = 1.0
     else:
@@ -2545,6 +2559,7 @@ class CLEANer(object):
    #   else:
       except:
         showinfo('ERROR!', 'Problems fitting the PSF main lobe!\n CLEAN model will not be restored')
+        self.me.lift(self.parent.tks)
         self.cleanBeam[:] = 0.0
         self.cleanBeam[self.parent.Npix/2,self.parent.Npix/2] = 1.0
 
@@ -2582,6 +2597,7 @@ class CLEANer(object):
        thrs = float(self.entries['Thres'].get())
      except:
        showinfo('ERROR!','Please, check the content of Gain, # Iter, and Thres!\nShould be numbers!')
+       self.me.lift(self.parent.tks)
        return
 
      for i in range(niter):
@@ -2594,6 +2610,7 @@ class CLEANer(object):
 
          if np.sum(tempres)==0.0:
            showinfo('INFO','Threshold reached in CLEAN masks!')
+           self.me.lift(self.parent.tks)
            break
 
        rslice = self.residuals[self.Np4:self.parent.Npix-self.Np4,self.Np4:self.parent.Npix-self.Np4]
