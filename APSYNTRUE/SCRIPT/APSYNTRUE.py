@@ -58,9 +58,9 @@ import time
 import sys
 
 
-__version__ = '2.5b'
+__version__ = '2.6b'
 
-
+_fontsize_ = 15
 
 __help_text__ = """ 
 
@@ -177,7 +177,7 @@ class dataTool(object):
   def __init__(self,antenna_file="",model_file="",tkroot=None):
 
     self.__version__ = __version__
-
+    mpl.rcParams.update({'font.size':_fontsize_})
 
 #############
 ## World map:
@@ -310,7 +310,7 @@ class dataTool(object):
     helptext.config(state=Tk.DISABLED)
     helptext.pack()
     win.grab_set()
-    Tk.Button(win, text='OK', command=win.destroy).pack()
+    Tk.Button(win, text='OK',font=('utopia',_fontsize_), command=win.destroy).pack()
 
 
   def GUI(self):
@@ -345,11 +345,11 @@ class dataTool(object):
 
     menFrame = Tk.Frame(butFrame)
     menFrame.pack(side=Tk.LEFT)
-    self.buttons['loadData'] = Tk.Button(menFrame,text="Load Data",command=self._loadData)
+    self.buttons['loadData'] = Tk.Button(menFrame,text="Load Data",font=('utopia',_fontsize_),command=self._loadData)
     self.buttons['loadData'].pack(side=Tk.TOP)
-    self.buttons['getHelp'] = Tk.Button(menFrame,text="Help",command=self._getHelp)
+    self.buttons['getHelp'] = Tk.Button(menFrame,text="Help",font=('utopia',_fontsize_),command=self._getHelp)
     self.buttons['getHelp'].pack(side=Tk.TOP)
-    self.buttons['Quit'] = Tk.Button(menFrame,text="Quit",command=self.quit)
+    self.buttons['Quit'] = Tk.Button(menFrame,text="Quit",font=('utopia',_fontsize_),command=self.quit)
     self.buttons['Quit'].pack(side=Tk.TOP)
 
     separator = Tk.Frame(butFrame,height=2, bd=5, relief=Tk.SUNKEN)
@@ -358,11 +358,11 @@ class dataTool(object):
     AxFrame = Tk.LabelFrame(butFrame,text="Plot: ")
     AxFrame.pack(side=Tk.LEFT)
 
-    self.buttons['Y'] = Tk.Listbox(AxFrame,exportselection=False,width=7,height=4)
+    self.buttons['Y'] = Tk.Listbox(AxFrame,exportselection=False,font=('utopia',_fontsize_),width=7,height=4)
     self.buttons['Y'].pack(side=Tk.LEFT)
     vs = Tk.Label(AxFrame,text=' vs. ')
     vs.pack(side=Tk.LEFT)
-    self.buttons['X'] = Tk.Listbox(AxFrame,exportselection=False,width=7,height=4)
+    self.buttons['X'] = Tk.Listbox(AxFrame,exportselection=False,font=('utopia',_fontsize_),width=7,height=4)
     self.buttons['X'].pack(side=Tk.LEFT)
 
 
@@ -383,17 +383,17 @@ class dataTool(object):
     self.buttons['X'].bind('<<ListboxSelect>>', self._plotData)
     self.buttons['Y'].bind('<<ListboxSelect>>', self._plotData)
 
-    HgFrame = Tk.LabelFrame(butFrame,text="Highlight by: ")
+    HgFrame = Tk.LabelFrame(butFrame,text="Highlight by: ",font=('utopia',_fontsize_))
     HgFrame.pack(side=Tk.LEFT)
 
     self.IsBas = Tk.IntVar()
-    self.buttons['BLSel'] = Tk.Checkbutton(HgFrame,text='Baseline ',variable=self.IsBas,command=self._onBas)
+    self.buttons['BLSel'] = Tk.Checkbutton(HgFrame,text='Baseline ',font=('utopia',_fontsize_),variable=self.IsBas,command=self._onBas)
     self.buttons['BLSel'].pack(side=Tk.LEFT)
 
     scrollbar = Tk.Scrollbar(HgFrame, orient=Tk.VERTICAL)
     scrollbar.pack(side=Tk.LEFT,fill=Tk.Y)
 
-    self.buttons['A1'] = Tk.Listbox(HgFrame,exportselection=False,width=5,height=4,yscrollcommand=scrollbar.set)
+    self.buttons['A1'] = Tk.Listbox(HgFrame,font=('utopia',_fontsize_),exportselection=False,width=5,height=4,yscrollcommand=scrollbar.set)
     scrollbar.config(command=self.buttons['A1'].yview)
     self.buttons['A1'].pack(side=Tk.LEFT)
     vs = Tk.Label(HgFrame,text=' to ')
@@ -401,7 +401,7 @@ class dataTool(object):
 
     scrollbar2 = Tk.Scrollbar(HgFrame, orient=Tk.VERTICAL)
     scrollbar2.pack(side=Tk.LEFT,fill=Tk.Y)
-    self.buttons['A2'] = Tk.Listbox(HgFrame,exportselection=False,width=5,height=4,yscrollcommand=scrollbar2.set)
+    self.buttons['A2'] = Tk.Listbox(HgFrame,font=('utopia',_fontsize_),exportselection=False,width=5,height=4,yscrollcommand=scrollbar2.set)
     scrollbar2.config(command=self.buttons['A2'].yview)    
     self.buttons['A2'].pack(side=Tk.LEFT)
     self.buttons['A2'].insert(Tk.END,'ALL')
@@ -417,12 +417,12 @@ class dataTool(object):
     UTFram.pack(side=Tk.TOP,fill=Tk.X)
 
 
-    self.buttons['UT0'] = Tk.Scale(UTFram,from_=0,to=24,orient=Tk.HORIZONTAL,length=200,resol=1,command=self._selectUT)
+    self.buttons['UT0'] = Tk.Scale(UTFram,from_=0,to=24,orient=Tk.HORIZONTAL,font=('utopia',_fontsize_),length=200,resol=1,command=self._selectUT)
     self.buttons['UT0'].pack(side=Tk.RIGHT)
 
     self.IsScan = Tk.IntVar(UTFram)
     self.IsBas.set(False)
-    self.buttons['ScanSel'] = Tk.Checkbutton(UTFram,text='Obs. time: ',variable=self.IsScan,command=self._onScan)
+    self.buttons['ScanSel'] = Tk.Checkbutton(UTFram,text='Obs. time: ',font=('utopia',_fontsize_), variable=self.IsScan, command=self._onScan)
     self.buttons['ScanSel'].pack(side=Tk.LEFT)
 
 
@@ -431,12 +431,12 @@ class dataTool(object):
     AngFram.pack(side=Tk.TOP,fill=Tk.X)
 
 
-    self.buttons['Ang'] = Tk.Scale(AngFram,from_=0,to=180,orient=Tk.HORIZONTAL,length=200,resol=self.DAlpha,command=self._selectAng)
+    self.buttons['Ang'] = Tk.Scale(AngFram,from_=0,to=180,orient=Tk.HORIZONTAL,font=('utopia',_fontsize_),length=200,resol=self.DAlpha,command=self._selectAng)
     self.buttons['Ang'].pack(side=Tk.RIGHT)
 
     self.IsAng = Tk.IntVar(AngFram)
     self.IsAng.set(False)
-    self.buttons['AngSel'] = Tk.Checkbutton(AngFram,text='UV Angle: ',variable=self.IsAng,command=self._onAng)
+    self.buttons['AngSel'] = Tk.Checkbutton(AngFram,text='UV Angle: ',font=('utopia',_fontsize_), variable=self.IsAng, command=self._onAng)
     self.buttons['AngSel'].pack(side=Tk.LEFT)
 
 
@@ -447,16 +447,16 @@ class dataTool(object):
     separator.pack(fill=Tk.X, padx=5, pady=2,side=Tk.LEFT)
 
 
-    ImFrame = Tk.LabelFrame(butFrame,text="Image Reconstruction: ")
+    ImFrame = Tk.LabelFrame(butFrame,text="Image Reconstruction: ",font=('utopia',_fontsize_))
     ImFrame.pack(side=Tk.LEFT)
 
 
     CLEAN = Tk.Frame(ImFrame)
     CLEAN.pack(side=Tk.LEFT)
 
-    self.buttons['CLEAN'] = Tk.Button(CLEAN,text="CLEAN",command=self._doCLEAN)
+    self.buttons['CLEAN'] = Tk.Button(CLEAN,text="CLEAN",font=('utopia',_fontsize_),command=self._doCLEAN)
     self.buttons['CLEAN'].pack(side=Tk.TOP)
-    self.buttons['MEM'] = Tk.Button(CLEAN,text="MEM",command=self._doMEM)
+    self.buttons['MEM'] = Tk.Button(CLEAN,text="MEM",font=('utopia',_fontsize_),command=self._doMEM)
     self.buttons['MEM'].pack(side=Tk.TOP)
 
 
@@ -480,7 +480,7 @@ class dataTool(object):
     self.buttons['Pixel'] = Tk.Scale(PixSel,from_=3,to=60,orient=Tk.HORIZONTAL,length=250,resol=1,command=self._setPixel,showvalue=0)
     self.buttons['Pixel'].pack(side=Tk.RIGHT)
 
-    pltxt = Tk.Label(PixSel,text='Pixel (Nyq):')
+    pltxt = Tk.Label(PixSel,text='Pixel (Nyq):',font=('utopia',_fontsize_))
     pltxt.pack(side=Tk.LEFT)
  
 
@@ -492,7 +492,7 @@ class dataTool(object):
     self.buttons['Robust'] = Tk.Scale(RobSel,from_=-2.0,to=2.0,orient=Tk.HORIZONTAL,length=250,resol=0.1,command=self._reWeight,showvalue=0)
     self.buttons['Robust'].pack(side=Tk.RIGHT)
 
-    pltxt = Tk.Label(RobSel,text='Robustness:')
+    pltxt = Tk.Label(RobSel,text='Robustness:',font=('utopia',_fontsize_))
     pltxt.pack(side=Tk.LEFT)
 
 
@@ -504,7 +504,7 @@ class dataTool(object):
     self.buttons['Power'] = Tk.Scale(PowSel,from_=0.0,to=1.0,orient=Tk.HORIZONTAL,length=250,resol=0.1,command=self._rePower,showvalue=0)
     self.buttons['Power'].pack(side=Tk.RIGHT)
 
-    pltxt = Tk.Label(PowSel,text='Wgt. Power:')
+    pltxt = Tk.Label(PowSel,text='Wgt. Power:',font=('utopia',_fontsize_))
     pltxt.pack(side=Tk.LEFT)
 
     
@@ -513,7 +513,7 @@ class dataTool(object):
     LabSel = Tk.Frame(ScaleSel)
     LabSel.pack(side=Tk.TOP,fill=Tk.X)
 
-    self.buttons['ImLab'] = Tk.Label(LabSel,text='Nyquist: %2i; Robust: %2.1f;   Weight: %2.1f'%(3,0.0,1.0))
+    self.buttons['ImLab'] = Tk.Label(LabSel,text='Nyquist: %2i; Robust: %2.1f;   Weight: %2.1f'%(3,0.0,1.0),font=('utopia',_fontsize_))
     self.buttons['ImLab'].pack(side=Tk.LEFT)
 
 
@@ -577,11 +577,11 @@ class dataTool(object):
     self.dirtyImage = self.dirtyPlot.imshow(self.PSF,cmap=self.currcmap)
 
 
-    self.beamPlot.set_title('PSF',rotation=-90.,x=1.05, y=0.5,fontsize=fs)
+    self.beamPlot.set_title('PSF',rotation=-90.,x=1.05, y=0.5) #,fontsize=fs)
 
-    self.dirtyPlot.set_title('DIRTY IMAGE',rotation=-90.,x=1.05, y=0.45,fontsize=fs)
-    self.UVPlot.set_title('UV SPACE',rotation=-90.,x=1.05, y=0.45,fontsize=fs)
-    self.dataFig.set_title('VISIBILITIES',rotation=0.,x=0.1, y=1.01,fontsize=fs)
+    self.dirtyPlot.set_title('DIRTY IMAGE',rotation=-90.,x=1.05, y=0.45) #,fontsize=fs)
+    self.UVPlot.set_title('UV SPACE',rotation=-90.,x=1.05, y=0.45) #,fontsize=fs)
+    self.dataFig.set_title('VISIBILITIES',rotation=0.,x=0.1, y=1.01) #,fontsize=fs)
 
 
 
@@ -670,18 +670,18 @@ class dataTool(object):
         win = Tk.Toplevel(self.tks)
         win.attributes('-topmost', 'true')
         win.title("Current UVFITS File Info")
-        infotext = ScrolledText.ScrolledText(win)
+        infotext = ScrolledText.ScrolledText(win,font=('utopia',_fontsize_))
         infotext.config(state=Tk.NORMAL)
         infotext.insert(Tk.INSERT,info)
         infotext.config(state=Tk.DISABLED)
         infotext.pack()
         loadProg = Tk.StringVar()
         loadProg.set('Going to load visibilities...')
-        progress = Tk.Label(win, textvariable=loadProg)
+        progress = Tk.Label(win, textvariable=loadProg,font=('utopia',_fontsize_))
         progress.config(state=Tk.NORMAL)
         progress.pack()
         win.grab_set()
-        self.OKBut = Tk.Button(win, text='OK', command=win.destroy)
+        self.OKBut = Tk.Button(win, text='OK',font=('utopia',_fontsize_), command=win.destroy)
         self.OKBut["state"] = Tk.DISABLED
         self.OKBut.pack()
         win.update()
@@ -1091,6 +1091,13 @@ class dataTool(object):
 
     self.buttons['UT0'].config(from_=0,to=self.Ntimes-1)
     self.buttons['UT0'].set(0)
+
+    try:
+      self.STATIONS[0].remove()
+      for sta in self.STATION_NAMES:
+        sta.remove()
+    except:
+      pass
 
     self.STATIONS = self.EarthPlot.plot(self.antLon,self.antLat,'or',transform=ccrs.PlateCarree())
     self.STATION_NAMES = [self.EarthPlot.text(self.antLon[i],self.antLat[i],self.antnames[i],transform=ccrs.PlateCarree(),color='r') for i in range(len(self.antLon))]
@@ -1679,7 +1686,7 @@ class CLEANer(object):
     helptext.insert(Tk.INSERT,__CLEAN_help_text__)
     helptext.config(state=Tk.DISABLED)
     helptext.pack()
-    Tk.Button(win, text='OK', command=win.destroy).pack()
+    Tk.Button(win, text='OK',font=('utopia',_fontsize_), command=win.destroy).pack()
 
 
 
@@ -1708,7 +1715,7 @@ class CLEANer(object):
     self.me.protocol("WM_DELETE_WINDOW", self.quit)
     self.Np4 = self.parent.Npix/4
 
-    self.figCL1 = pl.figure(figsize=(12,6))    
+    self.figCL1 = pl.figure(figsize=(18,10))    
 
     self.residuals = np.zeros(np.shape(self.parent.Dirty))
     self.cleanmod = np.copy(self.residuals)
@@ -1738,20 +1745,20 @@ class CLEANer(object):
     self.frames['Niter'] = Tk.Frame(self.frames['CLOpt'])
     self.frames['Thres'] = Tk.Frame(self.frames['CLOpt'])
 
-    Gtext = Tk.Label(self.frames['Gain'],text="Gain:  ")
-    Ntext = Tk.Label(self.frames['Niter'],text="# iter:")
-    Ttext = Tk.Label(self.frames['Thres'],text="Thres (Jy/b):")
+    Gtext = Tk.Label(self.frames['Gain'],text="Gain:  ",font=('utopia',_fontsize_))
+    Ntext = Tk.Label(self.frames['Niter'],text="# iter:",font=('utopia',_fontsize_))
+    Ttext = Tk.Label(self.frames['Thres'],text="Thres (Jy/b):",font=('utopia',_fontsize_))
 
     self.entries = {}
-    self.entries['Gain'] = Tk.Entry(self.frames['Gain'])
+    self.entries['Gain'] = Tk.Entry(self.frames['Gain'],font=('utopia',_fontsize_))
     self.entries['Gain'].insert(0,"0.1")
     self.entries['Gain'].config(width=5)
 
-    self.entries['Niter'] = Tk.Entry(self.frames['Niter'])
+    self.entries['Niter'] = Tk.Entry(self.frames['Niter'],font=('utopia',_fontsize_))
     self.entries['Niter'].insert(0,"100")
     self.entries['Niter'].config(width=5)
 
-    self.entries['Thres'] = Tk.Entry(self.frames['Thres'])
+    self.entries['Thres'] = Tk.Entry(self.frames['Thres'],font=('utopia',_fontsize_))
     self.entries['Thres'].insert(0,"0.0")
     self.entries['Thres'].config(width=5)
 
@@ -1770,11 +1777,11 @@ class CLEANer(object):
 
     self.buttons = {}
 
-    self.buttons['clean'] = Tk.Button(self.frames['CLOpt'],text="CLEAN",command=self._CLEAN)
-    self.buttons['reset'] = Tk.Button(self.frames['CLOpt'],text="RELOAD",command=self._reset)
-    self.buttons['addres'] = Tk.Button(self.frames['CLOpt'],text="+/- Resid",command=self._AddRes)
-    self.buttons['dorestore'] = Tk.Button(self.frames['CLOpt'],text="(Un)restore",command=self._doRestore)
-    self.buttons['dorescale'] = Tk.Button(self.frames['CLOpt'],text="Rescale",command=self._doRescale)
+    self.buttons['clean'] = Tk.Button(self.frames['CLOpt'],text="CLEAN",font=('utopia',_fontsize_),command=self._CLEAN)
+    self.buttons['reset'] = Tk.Button(self.frames['CLOpt'],text="RELOAD",font=('utopia',_fontsize_),command=self._reset)
+    self.buttons['addres'] = Tk.Button(self.frames['CLOpt'],text="+/- Resid",font=('utopia',_fontsize_),command=self._AddRes)
+    self.buttons['dorestore'] = Tk.Button(self.frames['CLOpt'],text="(Un)restore",font=('utopia',_fontsize_),command=self._doRestore)
+    self.buttons['dorescale'] = Tk.Button(self.frames['CLOpt'],text="Rescale",font=('utopia',_fontsize_),command=self._doRescale)
 
 
 
@@ -1792,7 +1799,7 @@ class CLEANer(object):
     separator = Tk.Frame(self.frames['CLOpt'],height=4, bd=5, relief=Tk.SUNKEN)
     separator.pack(fill=Tk.X, padx=10, pady=20,side=Tk.TOP)
 
-    self.buttons['save'] = Tk.Button(self.frames['CLOpt'],text="SAVE IMAGE",command=self._SAVE)
+    self.buttons['save'] = Tk.Button(self.frames['CLOpt'],text="SAVE IMAGE",font=('utopia',_fontsize_),command=self._SAVE)
     self.buttons['save'].pack(side=Tk.TOP)
 
 
@@ -2197,7 +2204,7 @@ class MEMer(object):
     helptext.insert(Tk.INSERT,__MEM_help_text__)
     helptext.config(state=Tk.DISABLED)
     helptext.pack()
-    Tk.Button(win, text='OK', command=win.destroy).pack()
+    Tk.Button(win, text='OK',font=('utopia',_fontsize_), command=win.destroy).pack()
 
 
   def quit(self):
@@ -2225,7 +2232,7 @@ class MEMer(object):
     self.me.config(menu=menubar)
     self.me.protocol("WM_DELETE_WINDOW", self.quit)
 
-    self.figMM1 = pl.figure(figsize=(12,6))    
+    self.figMM1 = pl.figure(figsize=(18,10))    
 
 
     NPIX = self.parent.Npix
@@ -2274,25 +2281,25 @@ class MEMer(object):
     self.frames['RMS'] = Tk.Frame(self.frames['MMOpt'])
     self.frames['Flux'] = Tk.Frame(self.frames['MMOpt'])
 
-    Htext = Tk.Label(self.frames['Hyper'],text="Damping:  ")
-    Ntext = Tk.Label(self.frames['Niter'],text="# iters.:")
-    Rtext = Tk.Label(self.frames['RMS'],text="RMS (Jy/b):")
-    Stext = Tk.Label(self.frames['Flux'],text="Flux (Jy):")
+    Htext = Tk.Label(self.frames['Hyper'],text="Damping:  ",font=('utopia',_fontsize_))
+    Ntext = Tk.Label(self.frames['Niter'],text="# iters.:",font=('utopia',_fontsize_))
+    Rtext = Tk.Label(self.frames['RMS'],text="RMS (Jy/b):",font=('utopia',_fontsize_))
+    Stext = Tk.Label(self.frames['Flux'],text="Flux (Jy):",font=('utopia',_fontsize_))
 
     self.entries = {}
-    self.entries['Hyper'] = Tk.Entry(self.frames['Hyper'])
+    self.entries['Hyper'] = Tk.Entry(self.frames['Hyper'],font=('utopia',_fontsize_))
     self.entries['Hyper'].insert(0,"0.01")
     self.entries['Hyper'].config(width=5)
 
-    self.entries['Niter'] = Tk.Entry(self.frames['Niter'])
+    self.entries['Niter'] = Tk.Entry(self.frames['Niter'],font=('utopia',_fontsize_))
     self.entries['Niter'].insert(0,"100")
     self.entries['Niter'].config(width=5)
 
-    self.entries['RMS'] = Tk.Entry(self.frames['RMS'])
+    self.entries['RMS'] = Tk.Entry(self.frames['RMS'],font=('utopia',_fontsize_))
     self.entries['RMS'].insert(0,"0.001")
     self.entries['RMS'].config(width=5)
 
-    self.entries['Flux'] = Tk.Entry(self.frames['Flux'])
+    self.entries['Flux'] = Tk.Entry(self.frames['Flux'],font=('utopia',_fontsize_))
     self.entries['Flux'].insert(0,"1.0")
     self.entries['Flux'].config(width=5)
 
@@ -2315,8 +2322,8 @@ class MEMer(object):
 
     self.buttons = {}
 
-    self.buttons['MEM'] = Tk.Button(self.frames['MMOpt'],text="MEM!",command=self._MEM)
-    self.buttons['reset'] = Tk.Button(self.frames['MMOpt'],text="RELOAD",command=self._reset)
+    self.buttons['MEM'] = Tk.Button(self.frames['MMOpt'],text="MEM!",font=('utopia',_fontsize_),command=self._MEM)
+    self.buttons['reset'] = Tk.Button(self.frames['MMOpt'],text="RELOAD",font=('utopia',_fontsize_),command=self._reset)
 
 
     self.frames['Hyper'].pack(side=Tk.TOP)
@@ -2331,7 +2338,7 @@ class MEMer(object):
     separator = Tk.Frame(self.frames['MMOpt'],height=4, bd=5, relief=Tk.SUNKEN)
     separator.pack(fill=Tk.X, padx=10, pady=20,side=Tk.TOP)
 
-    self.buttons['save'] = Tk.Button(self.frames['MMOpt'],text="SAVE IMAGE",command=self._SAVE)
+    self.buttons['save'] = Tk.Button(self.frames['MMOpt'],text="SAVE IMAGE",font=('utopia',_fontsize_),command=self._SAVE)
     self.buttons['save'].pack(side=Tk.TOP)
 
     self._reset()
@@ -2699,7 +2706,7 @@ if __name__ == "__main__":
 
 
   m = list(root.maxsize())
-  m[1]-=100
+  m[1]-=200
   root.geometry('{}x{}+0+0'.format(*m))
 
   myint = dataTool(tkroot=root)
