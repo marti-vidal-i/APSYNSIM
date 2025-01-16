@@ -51,15 +51,15 @@ import os
 import time
 import sys
 
-__version__ = '2.5b'
+__version__ = '2.6b'
 
-
+_fontsize_ = 15
 
 __help_text__ = """ 
      APSYNSIM, A REAL-TIME APERTURE SYNTHESIS SIMULATOR
 
                      IVAN MARTI-VIDAL 
-(ONSALA SPACE OBSERVATORY, NORDIC ALMA REGIONAL CENTER NODE)
+                 (UNIVERSITAT DE VALENCIA)
 
 You can click and drag the antennas in the plot called "ARRAY CONFIGURATION".
 When you drag an antenna, all other plots (UV PLANE, DIRTY BEAM, and DIRTY 
@@ -311,6 +311,7 @@ class Interferometer(object):
   def GUI(self): # ,makefigs=True):
 
     mpl.rcParams['toolbar'] = 'None'
+    mpl.rcParams.update({'font.size':_fontsize_})
 
     self.Nphf = self.Npix//2
     self.robfac = 0.0
@@ -337,7 +338,7 @@ class Interferometer(object):
     self.modelPlot = self.figUV.add_subplot(235,aspect='equal')
     self.dirtyPlot = self.figUV.add_subplot(236,aspect='equal')
 
-  #  self.spherePlot = pl.axes([0.53,0.82,0.12,0.12],projection='3d',aspect='auto')
+  #  self.spherePlot = pl.axes([0.55,0.84,0.10,0.10],projection='3d',aspect='equal')
 
     u = np.linspace(0, 2 * np.pi, 100)
     v = np.linspace(0, np.pi, 100)
@@ -527,7 +528,7 @@ class Interferometer(object):
       head['OBSGEO-Y'] = 6.5e6*np.cos(self.lat)                                                 
       head['OBSGEO-Z'] = 6.5e6*np.sin(self.lat)                                 
       head['DATE']     = Now              
-      head['ORIGIN']  = 'UVEG-APSYNSIM'       
+      head['ORIGIN']  = 'OSO-APSYNSIM'       
 
 
     if not os.path.exists(self.userdir):
@@ -596,6 +597,7 @@ class Interferometer(object):
 
 
     showinfo('INFO','\n\nFITS images saved succesfully!\n\n')
+
 
 
 
@@ -2049,6 +2051,18 @@ class CLEANer(object):
     self.parent = parent
     self.me = Tk.Toplevel(parent.tks)
 
+## Needed for MacOS to work:
+  #  try:
+  #    self.me.state('zoomed')
+  #  except:
+  #    self.me.attributes('-zoomed',True)
+ 
+   # m = list(self.me.maxsize())
+   # m[1]-=100
+   # m[0]-=200
+   # self.me.geometry('{}x{}+0+0'.format(*m))
+
+
     menubar = Tk.Menu(self.me)
     menubar.add_command(label="Help", command=self._getHelp)
     menubar.add_command(label="Quit", command=self.quit)
@@ -2057,11 +2071,10 @@ class CLEANer(object):
     self.me.protocol("WM_DELETE_WINDOW", self.quit)
     self.Np4 = self.parent.Npix//4
 
-    self.figCL1 = pl.figure(figsize=(12,6))    
-  #  self.figCL2 = pl.figure(figsize=(6,6))    
+    self.figCL1 = pl.figure(figsize=(18,10))    
 
     self.ResidPlot = self.figCL1.add_subplot(121,aspect='equal') #pl.axes([0.01,0.43,0.5,0.5],aspect='equal')
-    self.CLEANPlot = self.figCL1.add_subplot(122,aspect='equal',sharex=self.ResidPlot,sharey=self.ResidPlot) #pl.axes([0.55,0.43,0.5,0.5],aspect='equal')
+    self.CLEANPlot = self.figCL1.add_subplot(122,aspect='equal',sharex=self.ResidPlot,sharey=self.ResidPlot)
     self.ResidPlot.set_adjustable('box')
     self.CLEANPlot.set_adjustable('box')
 
@@ -2070,12 +2083,10 @@ class CLEANer(object):
     self.frames['GFr'] = Tk.Frame(self.me)
 
     self.canvas1 = FigureCanvasTkAgg(self.figCL1, master=self.frames['FigFr'])
-  #  self.canvas2 = FigureCanvasTkAgg(self.figCL2, master=self.frames['FigFr'])
 
     self.canvas1.draw()
-  #  self.canvas2.show()
 
-    self.frames['FigFr'].pack(side=Tk.TOP)
+    self.frames['FigFr'].pack(side=Tk.TOP,expand=1)
     self.frames['GFr'].pack(side=Tk.TOP)
 
 
@@ -2086,40 +2097,40 @@ class CLEANer(object):
     self.frames['Thres'] = Tk.Frame(self.frames['CLOpt'])
     self.frames['Sensit'] = Tk.Frame(self.frames['CLOpt'])
 
-    Gtext = Tk.Label(self.frames['Gain'],text="Gain:  ")
-    Ntext = Tk.Label(self.frames['Niter'],text="# iter:")
-    Ttext = Tk.Label(self.frames['Thres'],text="Thres (Jy/b):")
-    Stext = Tk.Label(self.frames['Sensit'],text="Sensit. (Jy/b):")
+    Gtext = Tk.Label(self.frames['Gain'],text="Gain:  ",font=("utopia",_fontsize_))
+    Ntext = Tk.Label(self.frames['Niter'],text="# iter:",font=("utopia",_fontsize_))
+    Ttext = Tk.Label(self.frames['Thres'],text="Thres (Jy/b):",font=("utopia",_fontsize_))
+    Stext = Tk.Label(self.frames['Sensit'],text="Sensit. (Jy/b):",font=("utopia",_fontsize_))
 
     self.entries = {}
-    self.entries['Gain'] = Tk.Entry(self.frames['Gain'])
+    self.entries['Gain'] = Tk.Entry(self.frames['Gain'],font=("utopia",_fontsize_))
     self.entries['Gain'].insert(0,"0.1")
     self.entries['Gain'].config(width=5)
 
-    self.entries['Niter'] = Tk.Entry(self.frames['Niter'])
+    self.entries['Niter'] = Tk.Entry(self.frames['Niter'],font=("utopia",_fontsize_))
     self.entries['Niter'].insert(0,"100")
     self.entries['Niter'].config(width=5)
 
-    self.entries['Thres'] = Tk.Entry(self.frames['Thres'])
+    self.entries['Thres'] = Tk.Entry(self.frames['Thres'],font=("utopia",_fontsize_))
     self.entries['Thres'].insert(0,"0.0")
     self.entries['Thres'].config(width=5)
 
-    self.entries['Sensit'] = Tk.Entry(self.frames['Sensit'])
+    self.entries['Sensit'] = Tk.Entry(self.frames['Sensit'],font=("utopia",_fontsize_))
     self.entries['Sensit'].insert(0,"0.0")
     self.entries['Sensit'].config(width=5)
 
 
 
-    GTitle = Tk.Label(self.frames['GFr'],text="CALIBRATION ERROR:")
+    GTitle = Tk.Label(self.frames['GFr'],text="CALIBRATION ERROR:",font=("utopia",_fontsize_))
     GTitle.pack(side=Tk.TOP)
     self.frames['Ant1L'] = Tk.Frame(self.frames['GFr'])
-    Ant1T = Tk.Label(self.frames['Ant1L'],text="Ant. 1:")
+    Ant1T = Tk.Label(self.frames['Ant1L'],text="Ant. 1:",font=("utopia",_fontsize_))
     Ant1T.pack(side=Tk.TOP)
-    self.entries['Ant1'] = Tk.Listbox(self.frames['Ant1L'],exportselection=False,width=5)
+    self.entries['Ant1'] = Tk.Listbox(self.frames['Ant1L'],font=("utopia",_fontsize_),exportselection=False,width=5)
     self.frames['Ant2L'] = Tk.Frame(self.frames['GFr'])
-    Ant2T = Tk.Label(self.frames['Ant2L'],text="Ant. 2:")
+    Ant2T = Tk.Label(self.frames['Ant2L'],text="Ant. 2:",font=("utopia",_fontsize_))
     Ant2T.pack(side=Tk.TOP)
-    self.entries['Ant2'] = Tk.Listbox(self.frames['Ant2L'],exportselection=False,width=5)
+    self.entries['Ant2'] = Tk.Listbox(self.frames['Ant2L'],font=("utopia",_fontsize_),exportselection=False,width=5)
     self.entries['Ant1'].pack(side=Tk.TOP)
     self.entries['Ant2'].pack(side=Tk.TOP)
 
@@ -2142,8 +2153,8 @@ class CLEANer(object):
 
     self.entries['H0'] = Tk.Scale(self.frames['H0Fr'],from_=0,to=self.parent.nH,orient=Tk.HORIZONTAL,length=200)
     self.entries['H1'] = Tk.Scale(self.frames['H1Fr'],from_=0,to=self.parent.nH,orient=Tk.HORIZONTAL,length=200)
-    H0Text = Tk.Label(self.frames['H0Fr'],text="From integration #: ",width=15)
-    H1Text = Tk.Label(self.frames['H1Fr'],text="To integration #: ",width=15)
+    H0Text = Tk.Label(self.frames['H0Fr'],text="From integration #: ",font=("utopia",_fontsize_),width=15)
+    H1Text = Tk.Label(self.frames['H1Fr'],text="To integration #: ",font=("utopia",_fontsize_),width=15)
     H0Text.pack(side=Tk.LEFT)
     self.entries['H0'].pack(side=Tk.RIGHT)
     H1Text.pack(side=Tk.LEFT)
@@ -2152,8 +2163,8 @@ class CLEANer(object):
 
     self.entries['Amp'] = Tk.Scale(self.frames['AmpFr'],from_=0.1,to=1000.,orient=Tk.HORIZONTAL,length=200)
     self.entries['Phas'] = Tk.Scale(self.frames['PhasFr'],from_=-180.,to=180.,orient=Tk.HORIZONTAL,length=200)
-    AmpText = Tk.Label(self.frames['AmpFr'],text="Amplitude gain (%): ",width=15)
-    PhasText = Tk.Label(self.frames['PhasFr'],text="Phase Gain: ",width=15)
+    AmpText = Tk.Label(self.frames['AmpFr'],text="Amplitude gain (%): ",font=("utopia",_fontsize_),width=15)
+    PhasText = Tk.Label(self.frames['PhasFr'],text="Phase Gain: ",font=("utopia",_fontsize_),width=15)
     AmpText.pack(side=Tk.LEFT)
     self.entries['Amp'].pack(side=Tk.RIGHT)
     PhasText.pack(side=Tk.LEFT)
@@ -2178,22 +2189,20 @@ class CLEANer(object):
     self.canvas1.get_tk_widget().pack(side=Tk.LEFT) #, fill=Tk.BOTH, expand=1)
 
     self.buttons = {}
-    self.buttons['Noise'] = Tk.Button(self.frames['CLOpt'],text="Redo Noise",command=self._ReNoise)
-    self.buttons['clean'] = Tk.Button(self.frames['CLOpt'],text="CLEAN",command=self._CLEAN)
-    self.buttons['reset'] = Tk.Button(self.frames['CLOpt'],text="RELOAD",command=self._reset)
-    self.buttons['addres'] = Tk.Button(self.frames['CLOpt'],text="+/- Resid",command=self._AddRes)
-    self.buttons['dorestore'] = Tk.Button(self.frames['CLOpt'],text="(Un)restore",command=self._doRestore)
-    self.buttons['dorescale'] = Tk.Button(self.frames['CLOpt'],text="Rescale",command=self._doRescale)
+    self.buttons['Noise'] = Tk.Button(self.frames['CLOpt'],text="Redo Noise",font=("utopia",_fontsize_),command=self._ReNoise)
+    self.buttons['clean'] = Tk.Button(self.frames['CLOpt'],text="CLEAN",font=("utopia",_fontsize_),command=self._CLEAN)
+    self.buttons['reset'] = Tk.Button(self.frames['CLOpt'],text="RELOAD",font=("utopia",_fontsize_),command=self._reset)
+    self.buttons['addres'] = Tk.Button(self.frames['CLOpt'],text="+/- Resid",font=("utopia",_fontsize_),command=self._AddRes)
+    self.buttons['dorestore'] = Tk.Button(self.frames['CLOpt'],text="(Un)restore",font=("utopia",_fontsize_),command=self._doRestore)
+    self.buttons['dorescale'] = Tk.Button(self.frames['CLOpt'],text="Rescale",font=("utopia",_fontsize_),command=self._doRescale)
 
-    self.buttons['showfft'] = Tk.Button(self.frames['CLOpt'],text="Show FFT",command=self._showFFT)
-    self.buttons['convsource'] = Tk.Button(self.frames['CLOpt'],text="True source (conv.)",command=self._convSource)
-    self.buttons['SAVE'] = Tk.Button(self.frames['CLOpt'],text="SAVE FITS!",command=self._SAVE)
-
+    self.buttons['showfft'] = Tk.Button(self.frames['CLOpt'],text="Show FFT",font=("utopia",_fontsize_),command=self._showFFT)
+    self.buttons['convsource'] = Tk.Button(self.frames['CLOpt'],text="True source (conv.)",font=("utopia",_fontsize_),command=self._convSource)
 
 
-    self.buttons['apply'] = Tk.Button(self.frames['GFr'],text="APPLY GAIN",command=self._ApplyGain)
+    self.buttons['apply'] = Tk.Button(self.frames['GFr'],text="APPLY GAIN",font=("utopia",_fontsize_),command=self._ApplyGain)
     self.buttons['apply'].pack(side=Tk.RIGHT)
-    self.buttons['recal'] = Tk.Button(self.frames['GFr'],text="RESET GAIN",command=self._reCalib)
+    self.buttons['recal'] = Tk.Button(self.frames['GFr'],text="RESET GAIN",font=("utopia",_fontsize_),command=self._reCalib)
     self.buttons['recal'].pack(side=Tk.RIGHT)
 
     self.frames['Gain'].pack(side=Tk.TOP)
@@ -2207,7 +2216,6 @@ class CLEANer(object):
     self.buttons['dorescale'].pack(side=Tk.TOP)
     self.buttons['showfft'].pack(side=Tk.TOP)
     self.buttons['convsource'].pack(side=Tk.TOP)
-    self.buttons['SAVE'].pack(side=Tk.TOP)
 
     separator = Tk.Frame(self.frames['CLOpt'],height=4, bd=5, relief=Tk.SUNKEN)
     separator.pack(fill=Tk.X, padx=10, pady=20,side=Tk.TOP)
@@ -2234,25 +2242,15 @@ class CLEANer(object):
     self._reCalib()
 
 
-
-  def _SAVE(self):
-    self.parent.saveFITS(None)
-    self.me.lift(self.parent.tks)
-
-
-
-
   def _ReNoise(self):
     try:
       sensit = float(self.entries['Sensit'].get())
     except:
       showinfo('ERROR!','Please, check the content of Sensit!\nIt should be a number!')
-      self.me.lift(self.parent.tks)
       return
 
     if sensit < 0.0: 
       showinfo('ERROR!','The sensitivity should be >= 0!')
-      self.me.lift(self.parent.tks)
       return
 
    # Get the number of baselines and the number of integration times:
@@ -2311,7 +2309,6 @@ class CLEANer(object):
       an1 = int(self.entries['Ant1'].curselection()[0])
     except:
       showinfo('WARNING!','No antenna selected!')
-      self.me.lift(self.parent.tks)
       return
 
     try:
@@ -2424,7 +2421,7 @@ class CLEANer(object):
 
     if not self.dorestore:
       showinfo('ERROR','Cannot add residual to the (unrestored) CLEAN model!\nRestore first!')
-      self.me.lift(self.parent.tks)
+
     if self.resadd:
       self.resadd = False
       toadd = self.cleanmod[self.Np4:self.parent.Npix-self.Np4,self.Np4:self.parent.Npix-self.Np4]
@@ -2523,7 +2520,6 @@ class CLEANer(object):
 
     if len(MainLobe[0]) < 5:
       showinfo('ERROR!', 'The main lobe of the PSF is too narrow!\n CLEAN model will not be restored')
-      self.me.lift(self.parent.tks)
       self.cleanBeam[:] = 0.0
       self.cleanBeam[self.parent.Npix/2,self.parent.Npix/2] = 1.0
     else:
@@ -2559,7 +2555,6 @@ class CLEANer(object):
    #   else:
       except:
         showinfo('ERROR!', 'Problems fitting the PSF main lobe!\n CLEAN model will not be restored')
-        self.me.lift(self.parent.tks)
         self.cleanBeam[:] = 0.0
         self.cleanBeam[self.parent.Npix/2,self.parent.Npix/2] = 1.0
 
@@ -2597,7 +2592,6 @@ class CLEANer(object):
        thrs = float(self.entries['Thres'].get())
      except:
        showinfo('ERROR!','Please, check the content of Gain, # Iter, and Thres!\nShould be numbers!')
-       self.me.lift(self.parent.tks)
        return
 
      for i in range(niter):
@@ -2610,7 +2604,6 @@ class CLEANer(object):
 
          if np.sum(tempres)==0.0:
            showinfo('INFO','Threshold reached in CLEAN masks!')
-           self.me.lift(self.parent.tks)
            break
 
        rslice = self.residuals[self.Np4:self.parent.Npix-self.Np4,self.Np4:self.parent.Npix-self.Np4]
@@ -2726,7 +2719,7 @@ class CLEANer(object):
     self.frames['FigCS'].pack(side=Tk.TOP)
     self.frames['CSFr'].pack(side=Tk.TOP)
 
-    self.buttons['reloadCS'] = Tk.Button(self.frames['CSFr'],text="Reload",command=self._CSRead)
+    self.buttons['reloadCS'] = Tk.Button(self.frames['CSFr'],text="Reload",font=("utopia",_fontsize_),command=self._CSRead)
     self.buttons['reloadCS'].pack()
 
     self.canvasCS1.mpl_connect('pick_event', self._onCSPick)
@@ -2811,7 +2804,7 @@ class UVPLOTTER2(object):
     menubar.add_command(label="Quit", command=self.quit)
     self.FFTwin.config(menu=menubar)
 
-    self.figUV1 = pl.figure(figsize=(10,4))    
+    self.figUV1 = pl.figure(figsize=(18,10))    
 
     self.UVPSF = self.figUV1.add_subplot(131,aspect='equal')
 
@@ -2851,7 +2844,7 @@ class UVPLOTTER2(object):
     self.frames['BFr'].pack(side=Tk.TOP)
 
     self.buttons = {}
-    self.buttons['reload'] = Tk.Button(self.frames['BFr'],text="Reload",command=self._FFTRead)
+    self.buttons['reload'] = Tk.Button(self.frames['BFr'],text="Reload",font=("utopia",_fontsize_),command=self._FFTRead)
     self.buttons['reload'].pack()
 
     self.canvasUV1.mpl_connect('pick_event', self._onUVPick)
@@ -2872,7 +2865,7 @@ class UVPLOTTER2(object):
     self.UVPSFPlot = self.UVPSF.imshow(Toplot,vmin=0.0,vmax=vmax,cmap=self.parent.currcmap,picker=True,interpolation='nearest')
     pl.setp(self.UVPSFPlot, extent=(-self.parent.UVmax+self.parent.UVSh,self.parent.UVmax+self.parent.UVSh,-self.parent.UVmax-self.parent.UVSh,self.parent.UVmax-self.parent.UVSh))
     self.UVPSF.set_ylabel(self.parent.vlab)
-
+    self.UVPSF.set_xlabel(self.parent.ulab)
     self.UVPSF.set_title('UV - PSF')
 
     
@@ -2896,7 +2889,7 @@ class UVPLOTTER2(object):
 
     self.UVSOURCEPlot = self.UVSOURCE.imshow(Toplot,vmin=0.0,vmax=vmax,cmap=self.parent.currcmap,picker=True,interpolation='nearest')
     pl.setp(self.UVSOURCEPlot, extent=(-self.parent.UVmax+self.parent.UVSh,self.parent.UVmax+self.parent.UVSh,-self.parent.UVmax-self.parent.UVSh,self.parent.UVmax-self.parent.UVSh))
-    self.UVSOURCE.set_xlabel(self.parent.ulab)
+    self.UVOBS.set_xlabel(self.parent.ulab)
   #  self.UVSOURCE.set_ylabel(self.parent.vlab)
 
     self.UVSOURCE.set_title('UV - SOURCE')
@@ -2972,7 +2965,7 @@ class UVPLOTTER(object):
     menubar.add_command(label="Quit", command=self.quit)
     self.FFTwin.config(menu=menubar)
 
-    self.figUV1 = pl.figure(figsize=(8.5,7))    
+    self.figUV1 = pl.figure(figsize=(18,12))    
 
     self.UVPSF = self.figUV1.add_subplot(231,aspect='equal')
     pl.setp(self.UVPSF.get_xticklabels(),visible=False)
@@ -3032,7 +3025,7 @@ class UVPLOTTER(object):
     self.frames['BFr'].pack(side=Tk.TOP)
 
     self.buttons = {}
-    self.buttons['reload'] = Tk.Button(self.frames['BFr'],text="Reload",command=self._FFTRead)
+    self.buttons['reload'] = Tk.Button(self.frames['BFr'],text="Reload",font=('utopia',_fontsize_),command=self._FFTRead)
     self.buttons['reload'].pack()
 
     self.canvasUV1.mpl_connect('pick_event', self._onUVPick)
